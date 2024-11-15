@@ -41,22 +41,25 @@
     let output = document.getElementById("output");
     let sent = document.getElementById("payload");
     let recevied = document.getElementById("received");
-//////////////////////////////////////////////////////////////////////
-    logBtn.addEventListener("click", function(){
+//////////////////////////////////////////////////////////////////
+    logBtn.addEventListener("click", function() {
         const payload = {
             action: "log",
             log: {
                 name: "event",
-                data: "something",
+                data: "Some kind of data",
             }
         }
-        const headers = new Headers()
-        headers.append("Content-Type", "application/json")
+
+        const headers = new Headers();
+        headers.append("Content-Type", "application/json");
+
         const body = {
-            method: 'POST',
+            method: "POST",
             body: JSON.stringify(payload),
             headers: headers,
         }
+
         fetch("http:\/\/localhost:8080/handle", body)
         .then((response) => response.json())
         .then((data) => {
@@ -70,9 +73,9 @@
         })
         .catch((error) => {
             output.innerHTML += "<br><br>Eror: " + error;
-        })
+        })        
     })
-//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
     authBrokerBtn.addEventListener("click", function() {
 
         const payload = {
@@ -107,7 +110,7 @@
             output.innerHTML += "<br><br>Eror: " + error;
         })
     })
-//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
     brokerBtn.addEventListener("click", function() {
 
         const body = {

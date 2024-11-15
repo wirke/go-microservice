@@ -53,7 +53,9 @@ func (app *Config) HandleSubmission(w http.ResponseWriter, r *http.Request) {
 
 func (app *Config) logItem(w http.ResponseWriter, entry LogPayload) {
 	jsonData, _ := json.MarshalIndent(entry, "", "\t")
+
 	logServiceURL := "http://logger-service/log"
+
 	request, err := http.NewRequest("POST", logServiceURL, bytes.NewBuffer(jsonData))
 	if err != nil {
 		app.errorJSON(w, err)
@@ -61,13 +63,14 @@ func (app *Config) logItem(w http.ResponseWriter, entry LogPayload) {
 	}
 
 	request.Header.Set("Content-Type", "application/json")
+
 	client := &http.Client{}
+
 	response, err := client.Do(request)
 	if err != nil {
 		app.errorJSON(w, err)
 		return
 	}
-
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusAccepted {
@@ -80,6 +83,7 @@ func (app *Config) logItem(w http.ResponseWriter, entry LogPayload) {
 	payload.Message = "logged"
 
 	app.writeJSON(w, http.StatusAccepted, payload)
+
 }
 
 func (app *Config) authenticate(w http.ResponseWriter, a AuthPayload) {
@@ -97,14 +101,13 @@ func (app *Config) authenticate(w http.ResponseWriter, a AuthPayload) {
 		app.errorJSON(w, err)
 		return
 	}
-
 	defer response.Body.Close()
 
 	if response.StatusCode == http.StatusUnauthorized {
 		app.errorJSON(w, errors.New("invalid credentials"))
 		return
-	} else if response.StatusCode == http.StatusAccepted {
-		app.errorJSON(w, errors.New("error calling service"))
+	} else if response.StatusCode != http.StatusAccepted {
+		app.errorJSON(w, errors.New("error calling auth service"))
 		return
 	}
 
@@ -124,7 +127,7 @@ func (app *Config) authenticate(w http.ResponseWriter, a AuthPayload) {
 	var payload jsonResponse
 	payload.Error = false
 	payload.Message = "Authenticated!"
-	payload.Data = jsonFromService
+	payload.Data = jsonFromService.Data
 
 	app.writeJSON(w, http.StatusAccepted, payload)
 }
