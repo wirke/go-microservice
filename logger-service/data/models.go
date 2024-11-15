@@ -14,8 +14,8 @@ import (
 var client *mongo.Client
 
 func New(mongo *mongo.Client) Models {
-
 	client = mongo
+
 	return Models{
 		LogEntry: LogEntry{},
 	}
@@ -42,9 +42,8 @@ func (l *LogEntry) Insert(entry LogEntry) error {
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	})
-
 	if err != nil {
-		log.Println(err)
+		log.Println("Error inserting into logs:", err)
 		return err
 	}
 
@@ -62,7 +61,7 @@ func (l *LogEntry) All() ([]*LogEntry, error) {
 
 	cursor, err := collection.Find(context.TODO(), bson.D{}, opts)
 	if err != nil {
-		log.Println(err)
+		log.Println("Finding all docs error:", err)
 		return nil, err
 	}
 	defer cursor.Close(ctx)
@@ -74,7 +73,7 @@ func (l *LogEntry) All() ([]*LogEntry, error) {
 
 		err := cursor.Decode(&item)
 		if err != nil {
-			log.Println(err)
+			log.Print("Error decoding log into slice:", err)
 			return nil, err
 		} else {
 			logs = append(logs, &item)
@@ -101,7 +100,7 @@ func (l *LogEntry) GetOne(id string) (*LogEntry, error) {
 		return nil, err
 	}
 
-	return &entry, err
+	return &entry, nil
 }
 
 func (l *LogEntry) DropCollection() error {
@@ -112,9 +111,9 @@ func (l *LogEntry) DropCollection() error {
 
 	if err := collection.Drop(ctx); err != nil {
 		return err
-	} else {
-		return nil
 	}
+
+	return nil
 }
 
 func (l *LogEntry) Update() (*mongo.UpdateResult, error) {
