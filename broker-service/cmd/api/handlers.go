@@ -144,7 +144,7 @@ func (app *Config) authenticate(w http.ResponseWriter, a AuthPayload) {
 
 func (app *Config) sendMail(w http.ResponseWriter, msg MailPayload) {
 	jsonData, _ := json.MarshalIndent(msg, "", "\t")
-	mailServiceURL := "http://mail-service/send"
+	mailServiceURL := "http://mailer-service/send"
 	request, err := http.NewRequest("POST", mailServiceURL, bytes.NewBuffer(jsonData))
 	if err != nil {
 		app.errorJSON(w, err)
@@ -162,7 +162,7 @@ func (app *Config) sendMail(w http.ResponseWriter, msg MailPayload) {
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusAccepted {
-		app.errorJSON(w, errors.New("Error calling mailing service"))
+		app.errorJSON(w, errors.New("error calling mailing service"))
 		return
 	}
 
