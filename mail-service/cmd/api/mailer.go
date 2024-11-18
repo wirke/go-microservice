@@ -34,6 +34,7 @@ func (m *Mail) SendSMTPMessage(msg Message) error {
 	if msg.From == "" {
 		msg.From = m.FromAddress
 	}
+
 	if msg.FromName == "" {
 		msg.FromName = m.FromName
 	}
@@ -70,7 +71,10 @@ func (m *Mail) SendSMTPMessage(msg Message) error {
 	}
 
 	email := mail.NewMSG()
-	email.SetFrom(msg.From).AddTo(msg.To).SetSubject(msg.Subject)
+	email.SetFrom(msg.From).
+		AddTo(msg.To).
+		SetSubject(msg.Subject)
+
 	email.SetBody(mail.TextPlain, plainMessage)
 	email.AddAlternative(mail.TextHTML, formattedMessage)
 
@@ -84,29 +88,14 @@ func (m *Mail) SendSMTPMessage(msg Message) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
 func (m *Mail) buildHTMLMessage(msg Message) (string, error) {
 	templateToRender := "./templates/mail.html.gohtml"
+
 	t, err := template.New("email-html").ParseFiles(templateToRender)
-	if err != nil {
-		return "", err
-	}
-
-	var tpl bytes.Buffer
-	if err = t.ExecuteTemplate(&tpl, "body", msg.DataMap); err != nil {
-		return "", err
-	}
-
-	plainMessage := tpl.String()
-
-	return plainMessage, nil
-}
-
-func (m *Mail) buildPlainTextMessage(msg Message) (string, error) {
-	templateToRender := "./templates/mail.plain.gohtml"
-	t, err := template.New("email-plain").ParseFiles(templateToRender)
 	if err != nil {
 		return "", err
 	}
@@ -123,6 +112,24 @@ func (m *Mail) buildPlainTextMessage(msg Message) (string, error) {
 	}
 
 	return formattedMessage, nil
+}
+
+func (m *Mail) buildPlainTextMessage(msg Message) (string, error) {
+	templateToRender := "./templates/mail.plain.gohtml"
+
+	t, err := template.New("email-plain").ParseFiles(templateToRender)
+	if err != nil {
+		return "", err
+	}
+
+	var tpl bytes.Buffer
+	if err = t.ExecuteTemplate(&tpl, "body", msg.DataMap); err != nil {
+		return "", err
+	}
+
+	plainMessage := tpl.String()
+
+	return plainMessage, nil
 }
 
 func (m *Mail) inlineCSS(s string) (string, error) {
@@ -150,7 +157,7 @@ func (m *Mail) getEncryption(s string) mail.Encryption {
 	case "tls":
 		return mail.EncryptionSTARTTLS
 	case "ssl":
-		return mail.EncryptionTLS
+		return mail.EncryptionSSLTLS
 	case "none", "":
 		return mail.EncryptionNone
 	default:
