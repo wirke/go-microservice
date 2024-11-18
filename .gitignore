@@ -26,7 +26,4 @@ go.work.sum
 
 /project/db-data/
 
-authApp
-mailerApp
-brokerApp
-mailerApp
+*[!.]*
